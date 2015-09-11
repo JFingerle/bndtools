@@ -32,13 +32,14 @@ import aQute.bnd.deployer.repository.api.IRepositoryContentProvider;
 import aQute.bnd.deployer.repository.api.IRepositoryIndexProcessor;
 import aQute.bnd.deployer.repository.api.Referral;
 import aQute.bnd.deployer.repository.providers.R5RepoContentProvider;
+import aQute.bnd.service.Refreshable;
 import aQute.lib.io.IO;
 
-public class WorkspaceR5Repository implements Repository {
+public class WorkspaceR5Repository implements Repository, Refreshable {
 
     private static final String NAME = "Workspace";
 
-    private final Map<IProject,CapabilityIndex> projectMap = new HashMap<IProject,CapabilityIndex>();
+    private Map<IProject,CapabilityIndex> projectMap = new HashMap<IProject,CapabilityIndex>();
     private final IRepositoryContentProvider contentProvider = new R5RepoContentProvider();
 
     private final ILogger logger = Logger.getLogger(WorkspaceR5Repository.class);
@@ -147,6 +148,24 @@ public class WorkspaceR5Repository implements Repository {
     @Override
     public String toString() {
         return NAME;
+    }
+
+    @Override
+    public boolean refresh() throws Exception {
+        // reset the projects first
+        projectMap = new HashMap<IProject,CapabilityIndex>();
+        try {
+            setupProjects();
+        } catch (Exception e) {
+            logger.logError(MessageFormat.format("Failed refresh plugin {0}.", this.getClass().getName()), e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public File getRoot() {
+        return null;
     }
 
 }

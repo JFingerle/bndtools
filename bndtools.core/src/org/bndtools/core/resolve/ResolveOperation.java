@@ -53,6 +53,13 @@ public class ResolveOperation implements IRunnableWithProgress {
 
         MultiStatus status = new MultiStatus(Plugin.PLUGIN_ID, 0, Messages.ResolveOperation_errorOverview, null);
 
+        // Refresh the repositories
+        try {
+            Central.refreshPlugins();
+        } catch (Exception e) {
+            status.add(new Status(IStatus.ERROR, Plugin.PLUGIN_ID, 0, "Exception during resolution.", e));
+        }
+
         // Start a coordination
         BundleContext bc = Plugin.getDefault().getBundleContext();
         ServiceReference<Coordinator> coordSvcRef = bc.getServiceReference(Coordinator.class);
